@@ -26,6 +26,8 @@ def save_frames(frames):
 
 if __name__ == '__main__':
     Simulation.init()
-    result, frames = Simulation.run()
-    if Simulation.rate():
-        save_frames(frames)
+    if Simulation.controller.status:
+        result, frames = Simulation.run()
+        if Simulation.rate():
+            save_frames(frames)
+    print("Game closed")
