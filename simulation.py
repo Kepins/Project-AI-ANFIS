@@ -98,7 +98,7 @@ class Simulation:
     controller: Controller
 
     @staticmethod
-    def init(controller=None, typeof_membership_function='generalizedbell'):
+    def init(controller='default_anfis', typeof_membership_function='generalizedbell'):
         pygame.init()
         pygame.font.init()
         Simulation.font = pygame.font.SysFont('Comic Sans MS', Constants.font_size)
@@ -117,8 +117,9 @@ class Simulation:
             Simulation.controller = ManualController()
         elif controller == 'fis':
             Simulation.controller = FisController()
-        elif controller is None:
+        elif controller == 'default_anfis':
             Simulation.controller = AnfisController("fuzzy_systems\\fisChk5.fis", "generalizedbell")
+        # controller contains path to .fis file
         else:
             # pass "generalizedbell" or "gaussbell"
             Simulation.controller = AnfisController(controller, typeof_membership_function)
