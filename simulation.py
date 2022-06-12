@@ -86,11 +86,11 @@ class Simulation:
     controller: Controller
 
     @staticmethod
-    def init():
+    def init(controller=None, typeof_membership_function='generalizedbell'):
         pygame.init()
         pygame.font.init()
         Simulation.font = pygame.font.SysFont('Comic Sans MS', Constants.font_size)
-        Simulation.fps = 120
+        Simulation.fps = 300
         Simulation.screen = pygame.display.set_mode(Constants.screen_size)
         Simulation.clock = pygame.time.Clock()
         height, vel = Simulation.get_starting_conditions()
@@ -101,9 +101,15 @@ class Simulation:
         pygame.display.update()
 
         # choose controller
-        #Simulation.controller = ManualController()
-        Simulation.controller = AnfisController("D:\\Studia4Sem\\SI\\Projekt\\Simulation\\fis.fis")
-
+        if controller == 'manual':
+            Simulation.controller = ManualController()
+        elif controller == 'fis':
+            Simulation.controller = FisController()
+        elif controller is None:
+            Simulation.controller = AnfisController("fuzzy_systems\\fisChk5.fis", "generalizedbell")
+        else:
+            # pass "generalizedbell" or "gaussbell"
+            Simulation.controller = AnfisController(controller, typeof_membership_function)
 
     @staticmethod
     def run():
@@ -124,7 +130,8 @@ class Simulation:
             time += Constants.dt
             Simulation.rocket.update(power)
 
-            Simulation.adjust_fps()
+            if isinstance(Simulation.controller, ManualController):
+                Simulation.adjust_fps()
 
             velocity = Simulation.font.render('velocity: ' + str(round(Simulation.rocket.vel)), False, (0, 0, 0))
             height = Simulation.font.render('height: ' + str(round(Simulation.rocket.height)), False, (0, 0, 0))
@@ -164,7 +171,7 @@ class Simulation:
     @staticmethod
     def rate():
         Simulation.screen.fill(Colors.WHITE)
-        info = Simulation.font.render('g-good, b-bad', False, (0, 0, 0))
+        info = Simulation.font.render('s-save, q-quit', False, (0, 0, 0))
         Simulation.screen.blit(info, (Constants.screen_size[0]/2, Constants.screen_size[1]/2))
         pygame.display.update()
         while True:
@@ -172,11 +179,11 @@ class Simulation:
                 if event.type == pygame.QUIT:
                     return False
                 elif event.type == pygame.KEYDOWN:
-                    if event.key ==pygame.K_g:
+                    if event.key ==pygame.K_s:
                         return True
-                    elif event.key == pygame.K_b:
+                    elif event.key == pygame.K_q:
                         return False
 
     @staticmethod
     def get_starting_conditions():
-        return random.uniform(0.3e6, 0.7e6), random.uniform(-200.0, 100.0)
+        return random.uniform(0.3e6, 0.6e6), random.uniform(-300.0, -0.0)

@@ -1,6 +1,6 @@
 from simulation import Simulation
 import csv
-
+import sys, getopt
 
 def save_frames(frames):
     id_cur: int
@@ -25,9 +25,16 @@ def save_frames(frames):
 
 
 if __name__ == '__main__':
-    Simulation.init()
+    if len(sys.argv) < 2:
+        Simulation.init()
+    elif len(sys.argv) < 3:
+        Simulation.init(sys.argv[1])
+    else:
+        Simulation.init(sys.argv[1], sys.argv[2])
+
     if Simulation.controller.status:
         result, frames = Simulation.run()
         if Simulation.rate():
             save_frames(frames)
+    print(Simulation.rocket.vel)
     print("Game closed")

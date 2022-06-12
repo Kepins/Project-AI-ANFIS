@@ -21,7 +21,7 @@ class InputOutputVar():
     mfs: []
     names: []
 
-    def __init__(self, lines, startIndex, mode="input"):
+    def __init__(self, lines, startIndex, function_type, mode="input"):
         line: str
         self.range = []
         self.mfs = []
@@ -55,8 +55,13 @@ class InputOutputVar():
                 for item in inputRangeStr.split():
                     inputRange.append(float(item))
                 if mode=="input":
-                    self.mfs.append(
-                        sf.FuzzySet(function=GeneralizedBell_MF(inputRange[0], inputRange[1], inputRange[2]), term=term))
+                    if function_type=="gaussbell":
+                        self.mfs.append(
+                            sf.FuzzySet(function=sf.Gaussian_MF(inputRange[1], inputRange[0]), term=term))
+                    elif function_type=="generalizedbell":
+                        self.mfs.append(
+                            sf.FuzzySet(function=GeneralizedBell_MF(inputRange[0], inputRange[1],
+                                                                    inputRange[2]), term=term))
                     print("Term: "+term+" "+str(inputRange[1])+" "+str(inputRange[0]))
                 elif mode=="output":
                     self.mfs.append([term,inputRange])
@@ -64,8 +69,11 @@ class InputOutputVar():
 
 class FuzzyReader():
 
-    def __init__(self, path):
+    def __init__(self, path, function_type):
         self.path = path
+        self.function_type = function_type
+        if function_type != "generalizedbell" and function_type != "gaussbell":
+            raise NotImplementedError
 
     def read(self):
         fs = sf.FuzzySystem(show_banner=False)
@@ -75,9 +83,9 @@ class FuzzyReader():
 
         for idx, line in enumerate(lines):
             if re.search("^\[Input[1-9]+]{1}", line) != None:
-                inputVars.append(InputOutputVar(lines, idx))
+                inputVars.append(InputOutputVar(lines, idx, self.function_type))
             elif re.search("^\[Output[1-9]+]{1}", line) != None:
-                outputVar = InputOutputVar(lines, idx, mode="output")
+                outputVar = InputOutputVar(lines, idx, self.function_type, mode="output")
 
         for item in inputVars:
             fs.add_linguistic_variable(item.name, sf.LinguisticVariable(item.mfs,
