@@ -10,6 +10,7 @@ class Colors:
     BLACK = (0, 0, 0)
     RED = (255, 0, 0)
     GRAY = (220, 220, 220)
+    NAVY_BLUE = (0, 0, 128)
 
 
 class Constants:
@@ -58,8 +59,19 @@ class Rocket:
         self.vel = vel
         self.update_rect()
 
-    def draw(self, screen: pygame.display):
-        pygame.draw.rect(screen, Colors.RED, self)
+    def draw(self, screen: pygame.display, power=0.0):
+        pygame.draw.rect(screen, Colors.NAVY_BLUE, self)
+        triangle = [self.rect.topleft, self.rect.topright, (self.rect.centerx, self.rect.top-20)]
+        pygame.draw.polygon(screen, Colors.GRAY, triangle)
+        trapeze = [(self.rect.right + 10, self.rect.bottom), (self.rect.left - 10, self.rect.bottom),
+                   (self.rect.left, self.rect.bottom-20), (self.rect.right, self.rect.bottom-20)]
+        pygame.draw.polygon(screen, Colors.GRAY, trapeze)
+        x_flame1 = random.uniform(self.rect.left+4, self.rect.centerx-3)
+        x_flame2 = random.uniform(self.rect.centerx+3, self.rect.right-4)
+        flame1 = [self.rect.bottomleft, self.rect.midbottom, (x_flame1, self.rect.bottom + 20 * power)]
+        flame2 = [self.rect.midbottom, self.rect.bottomright, (x_flame2, self.rect.bottom + 20 * power)]
+        pygame.draw.polygon(screen, Colors.RED, flame1)
+        pygame.draw.polygon(screen, Colors.RED, flame2)
 
     def update(self, normalized_power):
         r = Constants.R_PLANET + self.height
@@ -142,7 +154,7 @@ class Simulation:
             Simulation.screen.blit(pow, (0, Constants.font_size*2))
             Simulation.screen.blit(fps, (0, Constants.font_size*3))
             Simulation.draw_power(power)
-            Simulation.rocket.draw(Simulation.screen)
+            Simulation.rocket.draw(Simulation.screen, power)
 
             pygame.display.update()
 
